@@ -1,0 +1,13 @@
+﻿checkpoints/
+data/
+Results/
+
+__pycache__/
+*.pyc
+*.pth
+*.pt
+*.h5
+*.ckpt
+
+.vscode/
+.idea/
