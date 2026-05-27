@@ -237,7 +237,7 @@ def predict_speech(audio_bytes):
         return None, None
 
 # ── Result Renderer ───────────────────────────────────────────────────────────
-ddef render_result(emotion, probs, label):
+def render_result(emotion, probs, label):
 
     conf = probs.max()
 
