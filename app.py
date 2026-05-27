@@ -237,39 +237,42 @@ def predict_speech(audio_bytes):
         return None, None
 
 # ── Result Renderer ───────────────────────────────────────────────────────────
-def render_result(emotion, probs, label):
+ddef render_result(emotion, probs, label):
 
     conf = probs.max()
 
     emoji = EMOTION_EMOJI.get(emotion, "🎭")
 
-    st.markdown(f"""
-    <div style="
-        background: linear-gradient(135deg,#1a1a2e,#16213e);
-        padding: 30px;
-        border-radius: 20px;
-        text-align: center;
-        border: 1px solid #0f3460;
-    ">
+    st.markdown(
+        f"""
+        <div style="
+            background: linear-gradient(135deg,#1a1a2e,#16213e);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid #0f3460;
+        ">
 
-        <div style="font-size: 4rem;">
-            {emoji}
+            <div style="font-size:4rem;">
+                {emoji}
+            </div>
+
+            <h1 style="color:white;">
+                {emotion.upper()}
+            </h1>
+
+            <h3 style="color:#e94560;">
+                {conf:.1%} confidence
+            </h3>
+
+            <p style="color:#aaa;">
+                {label}
+            </p>
+
         </div>
-
-        <h1 style="color:white;">
-            {emotion.upper()}
-        </h1>
-
-        <h3 style="color:#e94560;">
-            {conf:.1%} confidence
-        </h3>
-
-        <p style="color:#aaa;">
-            {label}
-        </p>
-
-    </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:

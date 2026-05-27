@@ -8,3 +8,4 @@ librosa
 soundfile
 gdown==5.2.0
 matplotlib
+seaborn
