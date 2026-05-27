@@ -297,7 +297,9 @@ with st.sidebar:
         ]
     )
 
-# ── Main UI ───────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN UI
+# ─────────────────────────────────────────────────────────────────────────────
 
 st.title("🎭 Multimodal Emotion Recognition")
 st.write("Analyze emotions using Speech, Text, or Both.")
@@ -320,19 +322,24 @@ if mode == "🎤 Speech Only":
         use_container_width=True
     )
 
+    audio_bytes = None
+
     if recorded_audio:
-        audio_file = io.BytesIO(recorded_audio["bytes"])
+        audio_bytes = recorded_audio["bytes"]
 
-    if audio_file:
+    elif audio_file:
+        audio_bytes = audio_file.read()
 
-        st.audio(audio_file)
+    if audio_bytes:
+
+        st.audio(audio_bytes)
 
         if st.button("Analyze Emotion"):
 
-            audio_bytes = audio_file.read()
-
-            with st.spinner("Analyzing emotion..."):
+            with st.spinner("Running speech inference..."):
                 emotion, probs = predict_speech(audio_bytes)
+
+            st.success("Inference completed")
 
             render_result(
                 emotion,
@@ -380,25 +387,34 @@ elif mode == "🔀 Multimodal":
         use_container_width=True
     )
 
+    audio_bytes = None
+
     if recorded_audio:
-        audio_file = io.BytesIO(recorded_audio["bytes"])
+        audio_bytes = recorded_audio["bytes"]
+
+    elif audio_file:
+        audio_bytes = audio_file.read()
 
     text_input = st.text_area(
         "Enter Transcript/Text",
         height=120
     )
 
+    if audio_bytes:
+        st.audio(audio_bytes)
+
     if st.button("Analyze Multimodal Emotion"):
 
-        if audio_file and text_input.strip():
+        if audio_bytes and text_input.strip():
 
-            audio_bytes = audio_file.read()
+            with st.spinner("Running multimodal fusion inference..."):
 
-            with st.spinner("Running fusion model..."):
                 emotion, probs = predict_fusion(
                     audio_bytes,
                     text_input.strip()
                 )
+
+            st.success("Fusion inference completed")
 
             render_result(
                 emotion,
