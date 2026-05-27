@@ -15,7 +15,6 @@ plotly>=5.15.0
 Pillow>=10.0.0
 kaggle>=1.5.16
 gdown
-streamlit-mic-recorder
 gdown==5.2.0    
 torch
 torchaudio
@@ -26,4 +25,4 @@ librosa
 soundfile
 plotly
 numpy
-torchvision
+torchvisionstreamlit-mic-recorder

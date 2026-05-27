@@ -13,7 +13,6 @@ import streamlit as st
 import plotly.graph_objects as go
 from transformers import BertTokenizer
 import gdown
-from streamlit_mic_recorder import mic_recorder
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -294,46 +293,35 @@ st.write("Analyze emotions using Speech, Text, or Both.")
 
 # ── Speech Only ───────────────────────────────────────────────────────────────
 
+# ── Speech Only ───────────────────────────────────────────────────────────────
+
 if mode == "🎤 Speech Only":
 
     st.subheader("🎤 Speech Emotion Recognition")
 
     audio_file = st.file_uploader(
-        "Upload Audio",
+        "Upload Audio File",
         type=["wav", "mp3", "ogg"]
     )
 
-    recorded_audio = mic_recorder(
-        start_prompt="🎙️ Start Recording",
-        stop_prompt="⏹️ Stop Recording",
-        just_once=True,
-        use_container_width=True
-    )
+    if audio_file is not None:
 
-    audio_bytes = None
-
-    if recorded_audio:
-        audio_bytes = recorded_audio["bytes"]
-
-    elif audio_file:
         audio_bytes = audio_file.read()
 
-    if audio_bytes:
-
-        st.audio(audio_bytes, format="audio/wav")
+        st.audio(audio_bytes)
 
         if st.button("Analyze Emotion"):
 
             with st.spinner("Running speech inference..."):
+
                 emotion, probs = predict_speech(audio_bytes)
 
-            st.success("Inference completed")
-
-            render_result(
-                emotion,
-                probs,
-                "Speech Pipeline · CNN-BiLSTM"
-            )
+            if emotion is not None:
+                render_result(
+                    emotion,
+                    probs,
+                    "Speech Pipeline · CNN-BiLSTM"
+                )
 
 # ── Text Only ─────────────────────────────────────────────────────────────────
 
@@ -368,32 +356,16 @@ elif mode == "🔀 Multimodal":
         type=["wav", "mp3", "ogg"]
     )
 
-    recorded_audio = mic_recorder(
-        start_prompt="🎙️ Start Recording",
-        stop_prompt="⏹️ Stop Recording",
-        just_once=True,
-        use_container_width=True
-    )
-
-    audio_bytes = None
-
-    if recorded_audio:
-        audio_bytes = recorded_audio["bytes"]
-
-    elif audio_file:
-        audio_bytes = audio_file.read()
-
     text_input = st.text_area(
         "Enter Transcript/Text",
         height=120
     )
 
-    if audio_bytes:
-        st.audio(audio_bytes)
-
     if st.button("Analyze Multimodal Emotion"):
 
-        if audio_bytes and text_input.strip():
+        if audio_file is not None and text_input.strip():
+
+            audio_bytes = audio_file.read()
 
             with st.spinner("Running multimodal fusion inference..."):
 
@@ -402,13 +374,12 @@ elif mode == "🔀 Multimodal":
                     text_input.strip()
                 )
 
-            st.success("Fusion inference completed")
-
-            render_result(
-                emotion,
-                probs,
-                "Fusion Pipeline · Cross Modal Attention"
-            )
+            if emotion is not None:
+                render_result(
+                    emotion,
+                    probs,
+                    "Fusion Pipeline · Cross Modal Attention"
+                )
 
         else:
             st.error("Please provide both audio and text.")
