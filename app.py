@@ -219,70 +219,58 @@ def process_text(text, tokenizer):
 # ── Predictions ───────────────────────────────────────────────────────────────
 
 def predict_speech(audio_bytes):
-    model, device = load_speech_model()
 
-    feat = torch.tensor(process_audio(audio_bytes)).unsqueeze(0).to(device)
+    try:
+        model, device = load_speech_model()
 
-    with torch.no_grad():
-        probs = torch.softmax(model(feat), -1).squeeze().cpu().numpy()
+        feat = torch.tensor(
+            process_audio(audio_bytes)
+        ).unsqueeze(0).float().to(device)
 
-    return IDX2EMO[probs.argmax()], probs
+        with torch.no_grad():
+            output = model(feat)
+            probs = torch.softmax(output, dim=-1).squeeze().cpu().numpy()
 
-def predict_text(text):
-    model, device = load_text_model()
-    tokenizer = load_tokenizer()
+        return IDX2EMO[np.argmax(probs)], probs
 
-    ids, mask = process_text(text, tokenizer)
-
-    ids, mask = ids.to(device), mask.to(device)
-
-    with torch.no_grad():
-        probs = torch.softmax(model(ids, mask), -1).squeeze().cpu().numpy()
-
-    return IDX2EMO[probs.argmax()], probs
-
-def predict_fusion(audio_bytes, text):
-    model, device = load_fusion_model()
-    tokenizer = load_tokenizer()
-
-    feat = torch.tensor(process_audio(audio_bytes)).unsqueeze(0).to(device)
-
-    ids, mask = process_text(text, tokenizer)
-
-    ids, mask = ids.to(device), mask.to(device)
-
-    with torch.no_grad():
-        probs = torch.softmax(
-            model(feat, ids, mask), -1
-        ).squeeze().cpu().numpy()
-
-    return IDX2EMO[probs.argmax()], probs
+    except Exception as e:
+        st.error(f"Speech inference error: {str(e)}")
+        return None, None
 
 # ── Result Renderer ───────────────────────────────────────────────────────────
-
 def render_result(emotion, probs, label):
+
     conf = probs.max()
 
+    emoji = EMOTION_EMOJI.get(emotion, "🎭")
+
     st.markdown(f"""
-    <div class="emotion-card">
-        <div style="font-size:3rem">
-            {EMOTION_EMOJI.get(emotion)}
+    <div style="
+        background: linear-gradient(135deg,#1a1a2e,#16213e);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        border: 1px solid #0f3460;
+    ">
+
+        <div style="font-size: 4rem;">
+            {emoji}
         </div>
 
-        <div class="emotion-title">
+        <h1 style="color:white;">
             {emotion.upper()}
-        </div>
+        </h1>
 
-        <div class="confidence-badge">
+        <h3 style="color:#e94560;">
             {conf:.1%} confidence
-        </div>
+        </h3>
 
-        <p style="color:#aaa; margin-top:10px;">
+        <p style="color:#aaa;">
             {label}
         </p>
+
     </div>
     """, unsafe_allow_html=True)
-
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
@@ -332,7 +320,7 @@ if mode == "🎤 Speech Only":
 
     if audio_bytes:
 
-        st.audio(audio_bytes)
+        st.audio(audio_bytes, format="audio/wav")
 
         if st.button("Analyze Emotion"):
 
