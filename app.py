@@ -283,6 +283,51 @@ with st.sidebar:
             "🔀 Multimodal"
         ]
     )
+def predict_text(text):
+
+    try:
+        model, device = load_text_model()
+        tokenizer = load_tokenizer()
+
+        ids, mask = process_text(text, tokenizer)
+
+        ids = ids.to(device)
+        mask = mask.to(device)
+
+        with torch.no_grad():
+            output = model(ids, mask)
+            probs = torch.softmax(output, dim=-1).squeeze().cpu().numpy()
+
+        return IDX2EMO[np.argmax(probs)], probs
+
+    except Exception as e:
+        st.error(f"Text inference error: {str(e)}")
+        return None, None
+
+def predict_fusion(audio_bytes, text):
+
+    try:
+        model, device = load_fusion_model()
+        tokenizer = load_tokenizer()
+
+        feat = torch.tensor(
+            process_audio(audio_bytes)
+        ).unsqueeze(0).float().to(device)
+
+        ids, mask = process_text(text, tokenizer)
+
+        ids = ids.to(device)
+        mask = mask.to(device)
+
+        with torch.no_grad():
+            output = model(feat, ids, mask)
+            probs = torch.softmax(output, dim=-1).squeeze().cpu().numpy()
+
+        return IDX2EMO[np.argmax(probs)], probs
+
+    except Exception as e:
+        st.error(f"Fusion inference error: {str(e)}")
+        return None, None
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MAIN UI
