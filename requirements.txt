@@ -14,3 +14,5 @@ tqdm>=4.65.0
 plotly>=5.15.0
 Pillow>=10.0.0
 kaggle>=1.5.16
+gdown
+streamlit-mic-recorder
