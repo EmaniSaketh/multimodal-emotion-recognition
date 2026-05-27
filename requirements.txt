@@ -17,3 +17,13 @@ kaggle>=1.5.16
 gdown
 streamlit-mic-recorder
 gdown==5.2.0    
+torch
+torchaudio
+transformers
+gdown
+streamlit-mic-recorder
+librosa
+soundfile
+plotly
+numpy
+torchvision
