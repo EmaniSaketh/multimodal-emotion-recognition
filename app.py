@@ -237,6 +237,8 @@ def predict_speech(audio_bytes):
         return None, None
 
 # ── Result Renderer ───────────────────────────────────────────────────────────
+import streamlit.components.v1 as components
+
 def render_result(emotion, probs, label):
 
     conf = probs.max()
@@ -249,13 +251,15 @@ def render_result(emotion, probs, label):
         border-radius: 20px;
         text-align: center;
         border: 1px solid #0f3460;
+        color: white;
+        font-family: Arial;
     ">
 
         <div style="font-size:4rem;">
             {emoji}
         </div>
 
-        <h1 style="color:white;">
+        <h1>
             {emotion.upper()}
         </h1>
 
@@ -270,7 +274,7 @@ def render_result(emotion, probs, label):
     </div>
     """
 
-    st.markdown(html_code, unsafe_allow_html=True)
+    components.html(html_code, height=300)
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
